@@ -131,6 +131,6 @@ dmypy.json
 .DS_Store
 .idea/
 __init__.py
-secrets.py
-client_secrets.json
+secrets_local.py
+client_secret_local.json
 
