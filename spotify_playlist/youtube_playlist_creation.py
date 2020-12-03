@@ -8,39 +8,40 @@ import googleapiclient.errors
 import youtube_dl
 
 
+def get_youtube_client():
+    """ Log Into Youtube, Copied from Youtube Data API """
+    # Disable OAuthlib's HTTPS verification when running locally.
+    # *DO NOT* leave this option enabled in production.
+    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+
+    api_service_name = "youtube"
+    api_version = "v3"
+    client_secrets_file = "client_secret.json"
+
+    # Get credentials and create an API client
+    scopes = ["https://www.googleapis.com/auth/youtube.readonly"]
+    flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(
+        client_secrets_file, scopes)
+    credentials = flow.run_console()
+
+    # from the Youtube DATA API
+    youtube_client = googleapiclient.discovery.build(
+        api_service_name, api_version, credentials=credentials)
+
+    return youtube_client
+
+
 class CreatePlaylist:
 
     def __init__(self, playlist_name):
         self.playlist_name = playlist_name
         self.user_id = spotify_user_id
         self.spotify_token = spotify_user_token
-        self.youtube_client = self.get_youtube_client()
+        self.youtube_client = get_youtube_client()
         self.request_headers = {
                 "Content_Type": "application/json",
                 "Authorization": f"Bearer {self.spotify_token}"
             }
-
-    def get_youtube_client(self):
-        """ Log Into Youtube, Copied from Youtube Data API """
-        # Disable OAuthlib's HTTPS verification when running locally.
-        # *DO NOT* leave this option enabled in production.
-        os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
-
-        api_service_name = "youtube"
-        api_version = "v3"
-        client_secrets_file = "client_secret.json"
-
-        # Get credentials and create an API client
-        scopes = ["https://www.googleapis.com/auth/youtube.readonly"]
-        flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(
-            client_secrets_file, scopes)
-        credentials = flow.run_console()
-
-        # from the Youtube DATA API
-        youtube_client = googleapiclient.discovery.build(
-            api_service_name, api_version, credentials=credentials)
-
-        return youtube_client
 
     def get_liked_videos(self):
         request = self.youtube_client.videos().list(
@@ -70,7 +71,7 @@ class CreatePlaylist:
                     "spotify_uri": spotify_uri
                 }
             except IndexError:
-                print("[spotify] error: can't find song:", artist_name, '-', song_name)
+                print("[spotify] error: can't find this song", artist_name, '-', song_name)
         return liked_songs_info
 
     def get_playlist_info(self):
@@ -124,11 +125,11 @@ class CreatePlaylist:
 
         if self.check_for_playlist_existent():
             print(f'[spotify] playlist "{self.playlist_name}" is already exist.')
-            print(f'[spotify] getting playlist "{self.playlist_name}" id.', end='')
+            print(f'[spotify] getting playlist "{self.playlist_name}" id.')
 
             playlist_id = self.get_existing_playlist_id()
         else:
-            print(f'[spotify] creating playlist "{self.playlist_name}".', end='')
+            print(f'[spotify] creating playlist "{self.playlist_name}".')
 
             playlist_id = self.create_playlist()
 
