@@ -6,6 +6,13 @@ import google_auth_oauthlib.flow
 import googleapiclient.discovery
 import googleapiclient.errors
 import youtube_dl
+from projects.spotify_playlist import text_normalizing as tn
+
+
+def songs_name_normalizing(song, artist):
+    song = tn.normalize(song)
+    artist = tn.normalize(artist)
+    return song, artist
 
 
 def get_youtube_client():
@@ -59,7 +66,8 @@ class CreatePlaylist:
             # use youtube_dl to collect the song name & artist name
             video_url = youtube_dl.YoutubeDL({}).extract_info(
                 youtube_url, download=False)
-            song_name, artist_name = video_url["track"], video_url["artist"]
+            song_name, artist_name = songs_name_normalizing(video_url["track"], video_url["artist"])
+            print(song_name, artist_name)
 
             try:
                 spotify_uri = self.get_spotify_song_uri(song_name, artist_name)
@@ -70,9 +78,24 @@ class CreatePlaylist:
 
                     "spotify_uri": spotify_uri
                 }
+                print("[spotify] song", artist_name, '-', song_name, 'added')
             except IndexError:
-                print("[spotify] error: can't find this song", artist_name, '-', song_name)
+                print("[spotify] ERROR couldn't find this song", artist_name, '-', song_name)
+            except KeyError:
+                print("[spotify] your Spotify token has expired, please update token")
+                exit(1)
+
         return liked_songs_info
+
+    def get_spotify_song_uri(self, song_name, artist):
+        query = f'https://api.spotify.com/v1/search?q={artist}%20-%20{song_name}&type=track&limit=20&offset=0'
+        response = requests.get(
+            query,
+            headers=self.request_headers
+        )
+        print(response.json())
+        songs_list = response.json()["tracks"]["items"]
+        return songs_list[0]["uri"]
 
     def get_playlist_info(self):
         query = 'https://api.spotify.com/v1/me/playlists'
@@ -107,15 +130,6 @@ class CreatePlaylist:
         )
         return response.json()["id"]
 
-    def get_spotify_song_uri(self, song_name, artist):
-        query = f'https://api.spotify.com/v1/search?q={artist}%20-%20{song_name}&type=track&limit=20&offset=0'
-        response = requests.get(
-            query,
-            headers=self.request_headers
-        )
-        songs_list = response.json()["tracks"]["items"]
-        return songs_list[0]["uri"]
-
     def add_song_to_spotify_playlist(self):
         liked_songs_info = self.get_liked_videos()
 
@@ -125,11 +139,11 @@ class CreatePlaylist:
 
         if self.check_for_playlist_existent():
             print(f'[spotify] playlist "{self.playlist_name}" is already exist.')
-            print(f'[spotify] getting playlist "{self.playlist_name}" id.')
+            print(f'[spotify] getting playlist "{self.playlist_name}" id')
 
             playlist_id = self.get_existing_playlist_id()
         else:
-            print(f'[spotify] creating playlist "{self.playlist_name}".')
+            print(f'[spotify] creating playlist "{self.playlist_name}"')
 
             playlist_id = self.create_playlist()
 
@@ -147,5 +161,5 @@ class CreatePlaylist:
 
 
 if __name__ == '__main__':
-    cp = CreatePlaylist("Youtube Liked Songs")
+    cp = CreatePlaylist("Youtube Liked Songs5")
     cp.add_song_to_spotify_playlist()
