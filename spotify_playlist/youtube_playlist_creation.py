@@ -9,10 +9,8 @@ import youtube_dl
 from projects.spotify_playlist import text_normalizing as tn
 
 
-def songs_name_normalizing(song, artist):
-    song = tn.normalize(song)
-    artist = tn.normalize(artist)
-    return song, artist
+def songs_name_normalizing(*args):
+    return [tn.normalize(arg) for arg in args]
 
 
 def get_youtube_client():
@@ -50,6 +48,10 @@ class CreatePlaylist:
                 "Authorization": f"Bearer {self.spotify_token}"
             }
 
+    def get_liked_songs_dict(self, video_url, song_name, artist_name, spotify_song_uri):
+        return {"video_url": video_url, "song_name": song_name, "song_artist": artist_name,
+                "spotify_uri":  spotify_song_uri}
+
     def get_liked_videos(self):
         request = self.youtube_client.videos().list(
             part="snippet,contentDetails,statistics",
@@ -60,40 +62,32 @@ class CreatePlaylist:
         # collect each video and get important information
         for item in response["items"]:
             video_title = item["snippet"]["title"]
-            youtube_url = "https://www.youtube.com/watch?v={}".format(
-                item["id"])
+            youtube_url = f"https://www.youtube.com/watch?v={item['id']}"
 
             # use youtube_dl to collect the song name & artist name
             video_url = youtube_dl.YoutubeDL({}).extract_info(
                 youtube_url, download=False)
             song_name, artist_name = songs_name_normalizing(video_url["track"], video_url["artist"])
-            print(song_name, artist_name)
 
             try:
                 spotify_uri = self.get_spotify_song_uri(song_name, artist_name)
-                liked_songs_info[video_title] = {
-                    "video_url": video_url,
-                    "song_name": song_name,
-                    "song_artist": artist_name,
-
-                    "spotify_uri": spotify_uri
-                }
-                print("[spotify] song", artist_name, '-', song_name, 'added')
+                liked_songs_info[video_title] = self.get_liked_songs_dict(video_url, song_name, artist_name,
+                                                                          spotify_uri)
+                print("[spotify] song", artist_name, "-", song_name, "added")
             except IndexError:
-                print("[spotify] ERROR couldn't find this song", artist_name, '-', song_name)
+                print("[spotify] ERROR couldn't find this song", artist_name, "-", song_name)
             except KeyError:
                 print("[spotify] your Spotify token has expired, please update token")
                 exit(1)
 
         return liked_songs_info
 
-    def get_spotify_song_uri(self, song_name, artist):
-        query = f'https://api.spotify.com/v1/search?q={artist}%20-%20{song_name}&type=track&limit=20&offset=0'
+    def get_spotify_song_uri(self, *args):
+        query = f'https://api.spotify.com/v1/search?q={args}&type=track&limit=20&offset=0'
         response = requests.get(
             query,
             headers=self.request_headers
         )
-        print(response.json())
         songs_list = response.json()["tracks"]["items"]
         return songs_list[0]["uri"]
 
