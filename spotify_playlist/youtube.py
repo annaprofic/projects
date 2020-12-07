@@ -6,7 +6,7 @@ import googleapiclient.errors
 
 class Youtube:
     def __init__(self):
-        self.youtube_client_secret = "client_secret.json"
+        self.youtube_client_secret = "user_secrets/client_secret.json"
         self.youtube_client = self.get_youtube_client()
 
     def get_youtube_client(self):
