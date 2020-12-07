@@ -131,6 +131,8 @@ dmypy.json
 .DS_Store
 .idea/
 __init__.py
-secrets_local.py
+
+# Sensitive files or modules
 client_secret_local.json
+secrets_local.py
 
