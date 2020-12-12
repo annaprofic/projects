@@ -28,9 +28,9 @@ a simple script that takes liked videos from your account on Youtube, and genera
 
 4) Run the File  
 `python3 playlist_creation.py`   
-    * when you'll see this: `Please visit this URL to authorize this application: <some long url>`
-    * just click on this link and log into your Google Account and 
-    allow this program use your Youtube account to collect the `authorization code`
+    * when see this: `Please visit this URL to authorize this application: <some long url>`
+    * click on this link and log into your Google Account 
+    * allow this program use your Youtube account to collect the `authorization code`
  
 
 
