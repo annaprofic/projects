@@ -36,11 +36,11 @@ a simple script that takes liked videos from your account on Youtube, and genera
 
    [Youtube Data API v3]: <https://developers.google.com/youtube/v3>
    [Spotify Web API]: <https://developer.spotify.com/documentation/web-api/>
+   [Youtube_dl v2020.12.12]:<https://github.com/ytdl-org/youtube-dl/> 
    [Requests library v2.25.0]: <https://requests.readthedocs.io/en/master/>
    
    [Account Overview]: <https://www.spotify.com/us/account/overview/> 
    [Get Oauth]: <https://developer.spotify.com/console/post-playlists/>
    
    [Set Up Youtube Oauth]: <https://developers.google.com/youtube/v3/getting-started/>
-   [Youtube Video]:<https://www.youtube.com/watch?v=7J_qcttfnJA/>
-   [Youtube_dl v2020.12.12]:<https://github.com/ytdl-org/youtube-dl/> 
+   
