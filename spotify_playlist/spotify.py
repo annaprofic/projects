@@ -30,12 +30,20 @@ class Spotify:
 
         return response.json()
 
+    def get_playlists_items(self, playlist_id):
+        query = f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks'
+        response = requests.get(
+            query,
+            headers=self.request_headers
+        )
+        return [item["track"]["uri"] for item in response.json()["items"]]
+
     def check_for_playlist_existent(self, playlist_name):
         return any(tag['name'] == playlist_name for tag in self.get_all_playlists_info()['items'])
 
     def get_existing_playlist_id(self, playlist_name):
         return [curr_playlist['id'] for curr_playlist in self.get_all_playlists_info()['items']
-                if curr_playlist['name'] == playlist_name]
+                if curr_playlist['name'] == playlist_name][0]
 
     def create_playlist(self, playlist_name):
         request_body = json.dumps({
@@ -53,26 +61,35 @@ class Spotify:
         return response.json()["id"]
 
     def add_items_to_playlist(self, playlist_name, songs):
-        songs_uris = []
-        for song, info in songs.items():
-            songs_uris.append(info['spotify_uri'])
+
+        playlist_items = {}
 
         if self.check_for_playlist_existent(playlist_name):
             print(f'\n[spotify] playlist "{playlist_name}" is already exist.')
-            print(f'[spotify] getting playlist "{playlist_name}" id')
+            print(f'[spotify] getting playlist "{playlist_name}" id.')
             playlist_id = self.get_existing_playlist_id(playlist_name)
+            playlist_items = set(self.get_playlists_items(playlist_id))
         else:
             print(f'\n[spotify] creating playlist "{playlist_name}"')
             playlist_id = self.create_playlist(playlist_name)
 
-        request_data = json.dumps(songs_uris)
-        query = f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks"
-        response = requests.post(
-            query,
-            data=request_data,
-            headers=self.request_headers
-        )
+        songs_uris = []
+        for song, info in songs.items():
+            song_uri = info['spotify_uri']
+            if song_uri not in playlist_items:
+                songs_uris.append(song_uri)
 
-        print("\nAll founded songs from Youtube liked videos are now in your Spotify playlist.")
-        return response.json()
+        if songs_uris:
+            request_data = json.dumps(songs_uris)
+            query = f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks"
+            requests.post(
+                query,
+                data=request_data,
+                headers=self.request_headers
+            )
+            print("\nAll founded songs from Youtube liked videos "
+                  "are now in your Spotify playlist.")
 
+        else:
+            print("\nAll founded songs from Youtube liked videos "
+                  "has already been added to your Spotify playlist.")

@@ -37,7 +37,7 @@ class Playlist:
                 print("[spotify] song", artist_name, "-", song_name, "has been found")
 
             except IndexError:
-                print("[spotify] ERROR we couldn't find this song", artist_name, "-", song_name)
+                print("\033[93m[spotify] ERROR we couldn't find this song", artist_name, "-", song_name, '\033[93m')
 
             except KeyError:
                 print("[spotify] your Spotify token has been expired, please update your token")
@@ -51,4 +51,4 @@ class Playlist:
 
 if __name__ == '__main__':
     playlist = Playlist()
-    playlist.create("Youtube Liked Songs")
+    playlist.create("Youtube Liked Songs3")
