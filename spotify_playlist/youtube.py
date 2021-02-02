@@ -1,10 +1,10 @@
+# pylint: disable=no-member
 """
 Module represents the class Youtube that use Youtube API.
 """
 import os
-import googleapiclient.errors
 import google_auth_oauthlib.flow
-import googleapiclient.discovery
+from googleapiclient import discovery
 
 
 class Youtube:
@@ -38,7 +38,7 @@ class Youtube:
         self.manual = manual_auth
         self.youtube_client = self.get_youtube_client()
 
-    def get_youtube_client(self) -> googleapiclient.discovery.Resource:
+    def get_youtube_client(self) -> discovery.Resource:
         """
         Logs Into Youtube and copy from Youtube Data API
         and returns YouTube client using credentials.
@@ -64,7 +64,7 @@ class Youtube:
             credentials = flow.run_local_server()
 
         # from the Youtube DATA API
-        youtube_client = googleapiclient.discovery.build(
+        youtube_client = discovery.build(
             api_service_name, api_version, credentials=credentials)
 
         return youtube_client
