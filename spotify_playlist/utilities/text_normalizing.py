@@ -1,48 +1,52 @@
+# pylint: disable=broad-except
+"""
+Module that allows normalize and denoise text.
+"""
 import re
 
 
-def normalize(text: str) -> None:
+def normalize(text: str) -> str:
     """
+        Normalizes song names by denoising text and removing punctuation.
 
-    :param text:
-    :return:
+        Arguments:
+            text (str): text to normalize (songs names)
+        Returns:
+            text (str): normalized text
     """
     if text:
         try:
-            text = denoise_text(text)
+            text = remove_between_square_brackets(text)
             text = remove_punctuation(text)
             return text
-        except Exception as e:
+        except Exception as _:
             print("<",
-                  e.__class__.__name__,
+                  _.__class__.__name__,
                   "> occured, something went wrong with text: '", text, "'")
     else:
         print("We can't process this text.")
+        return "Unknown"
 
 
-def remove_between_square_brackets(text: str):
+def remove_between_square_brackets(text: str) -> str:
     """
+        Removes square brackets from text.
 
-    :param text:
-    :return:
+        Arguments:
+            text (str): text before removing brackets
+        Returns:
+            text (str): text without square brackets
     """
     return re.sub(r'\[[^]]*\]', '', text)
 
 
-def denoise_text(text: str):
+def remove_punctuation(text: str) -> str:
     """
+        Removes punctuation from text.
 
-    :param text:
-    :return:
+        Arguments:
+            text (str): text before removing punctuation
+        Returns:
+            text (str): normalized text
     """
-    text = remove_between_square_brackets(text)
-    return text
-
-
-def remove_punctuation(text: str):
-    """
-    Remove punctuation from list of tokenized words.
-    :param text:
-    :return:
-    """
-    return re.sub(r'[^\w\s]', '', text)
+    return ' '.join(re.findall(r'\w+', text))
