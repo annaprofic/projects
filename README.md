@@ -2,7 +2,7 @@
 
 spotify_playlist/
 
-a simple script that takes liked videos from your account on Youtube, and generates a Spotify playlist based on these songs.
+a script that takes liked videos from your account on Youtube, and generates a Spotify playlist based on these songs.
 
 ## Table of Contents
 * [Technologies](#Technologies)
@@ -16,14 +16,14 @@ a simple script that takes liked videos from your account on Youtube, and genera
 * [Requests library v2.25.0]
 
 ## LocalSetup
-1) to install dependencies run this command:
+1) To install dependencies run this command:
 `pip3 install -r requirements.txt`
 
-2) Collect You Spotify User ID and Oauth Token From Spotfiy and add it to secrets.py file
+2) Collect your Spotify User ID and Oauth Token from Spotfiy and add it to secrets.py file
     * your User ID is just your Spotify **Username**, that you can find here [Account Overview] 
     * to collect Oauth Token, visit this url: [Get Oauth] and click the **Get Token** button
 
-3) Enable Oauth For Youtube to download the client_secrets.json   
+3) Enable Oauth for Youtube to download the client_secrets.json   
     * this guide will help with this part [Set Up Youtube Oauth]
 
 4) Run the File  
