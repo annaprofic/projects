@@ -2,7 +2,6 @@
 Module represents the class Youtube that use Youtube API.
 """
 import os
-import pickle
 import googleapiclient.errors
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
@@ -21,7 +20,7 @@ class Youtube:
     youtube_client :
 
     """
-    def __init__(self, manual_auth=False):
+    def __init__(self, manual_auth=True):
         """
         Constructs all the necessary attributes for the youtube object.
 
@@ -64,9 +63,6 @@ class Youtube:
         else:
             credentials = flow.run_local_server()
 
-            with open('token.pickle', 'wb') as token:
-                pickle.dump(credentials, token)
-
         # from the Youtube DATA API
         youtube_client = googleapiclient.discovery.build(
             api_service_name, api_version, credentials=credentials)
@@ -82,6 +78,7 @@ class Youtube:
         """
         request = self.youtube_client.videos().list(
             part="snippet,contentDetails,statistics",
-            myRating="like"
+            myRating="like",
+            maxResults=50
         )
         return request.execute()["items"]

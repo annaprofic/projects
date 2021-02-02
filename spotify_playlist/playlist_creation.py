@@ -74,6 +74,8 @@ class Playlist:
         for item in self.youtube.get_liked_videos():
             video_title = item["snippet"]["title"]
             youtube_url = f"https://www.youtube.com/watch?v={item['id']}"
+            print("_____________________________________________"
+                  "______________________________________________")
 
             # use youtube_dl to collect the song name & artist name
             try:
@@ -83,12 +85,16 @@ class Playlist:
                       f'[youtube] Please, remove it from your list and try again.\033[0m')
                 sys.exit()
 
-            song_name, artist_name = songs_name_normalizing(video_url["track"],
-                                                            video_url["artist"])
+            song_name, artist_name = video_url["track"], video_url["artist"]
 
             # collect all information about song and get spotify uri
             try:
-                spotify_song_uri = self.spotify.get_song_uri(song_name, artist_name)
+                if not (song_name and artist_name):
+                    artist_name, song_name = "Unknown artist", "Unknown track"
+                    raise IndexError
+
+                spotify_song_uri = self.spotify.get_song_uri(songs_name_normalizing(song_name,
+                                                                                    artist_name))
                 liked_songs_info[video_title] = {"video_url": video_url,
                                                  "song_name": song_name,
                                                  "song_artist": artist_name,
